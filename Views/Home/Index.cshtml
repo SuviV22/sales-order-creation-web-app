@@ -1,0 +1,102 @@
+﻿@model List<sales_order_creation.Models.Items>
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div>
+    <table>
+        <tr>
+            <td>Red maxi-dress</td>
+            <td><i class="fas fa-add" onclick="AddToTable(1)"></i></td>
+        </tr>
+    </table>
+</div>
+<div class="text-center w-50 mt-5">
+    <div class="d-sm-flex w-100 justify-content-between">
+        <div>
+            <h2>Jane Doe</h2>
+        </div>
+        <div>
+            <h3>ORDER NO: #1000223</h3>
+        </div>
+    </div>
+    <div class="text-center">
+        <table id="dataContainer" class="w-75">
+            <tr class="bg-light">
+                <th>Name</th>
+                <th>Code</th>
+                <th>Qty</th>
+                <th>Price</th>
+            </tr>
+        </table>
+    </div>
+    <hr class="w" />
+    <div>
+        <table class="w-75">
+            <tr>
+                <th>TOTAL</th>
+                <th>RM 85.00</th>
+            </tr>
+            <tr>
+                <td>TAX</td>
+                <td>8.33</td>
+            </tr>
+            <tr>
+                <td>NET</td>
+                <td>76.67</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <button class="bg-danger"><i class="fas fa-trash"></i> SALE</button>
+        <button class="bg-success">PAY</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        var savedData = [];
+
+        function AddToTable(id) {
+            var data = {
+                name: string = "",
+                code: string = "",
+                qty: int = 0,
+                price: int = 0
+            }
+
+            switch (id) {
+                case 1:
+                    data.name = 'Red maxi-dress';
+                    data.code = '101';
+                    data.price = 50.00;
+                    break;
+            }
+
+            savedData.push(data);
+
+            $("#dataContainer tbody").append(generateDataRows(savedData));
+        }
+
+        function generateDataRows(data) {
+            console.log(data);
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr id='" + i +  "'>";
+                html += "<td>" + data[i].name + "</td>";
+                html += "<td>" + data[i].code + "</td>";
+                html += "<td>" + data[i].qty + "</td>";
+                html += "<td>" + data[i].price + "</td>";
+                html += '<td><i class="fas fa-trash" onclick="RemoveFromTable(' + i + ')"></i></td>';
+                html += "</tr>";
+            }
+            return html;
+        }
+
+        function RemoveFromTable(i) {
+            var row = document.getElementById(i);
+            row.parentNode.removeChild(row);
+
+            savedData.splice(i, 1);
+        }
+    </script>
+}
