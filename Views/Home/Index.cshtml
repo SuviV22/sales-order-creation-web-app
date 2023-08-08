@@ -6,27 +6,38 @@
     <table>
         <tr>
             <td>Red maxi-dress</td>
-            <td><i class="fas fa-add" onclick="AddToTable(1)"></i></td>
+            <td><i class="fas fa-add" onclick="AddToTable('101', 50.00)"></i></td>
+        </tr>
+        <tr>
+            <td>Classic blue jeans</td>
+            <td><i class="fas fa-add" onclick="AddToTable('102', 35.00)"></i></td>
         </tr>
     </table>
 </div>
-<div class="text-center w-50 mt-5">
+<div id="orderContainer" class="text-center w-50 mt-5 d-none position-fixed" style="right:100px;">
     <div class="d-sm-flex w-100 justify-content-between">
         <div>
             <h2>Jane Doe</h2>
         </div>
         <div>
-            <h3>ORDER NO: #1000223</h3>
+            <h3>ORDER NO: #<span id="orderNo"></span></h3>
         </div>
     </div>
     <div class="text-center">
         <table id="dataContainer" class="w-75">
-            <tr class="bg-light">
-                <th>Name</th>
-                <th>Code</th>
-                <th>Qty</th>
-                <th>Price</th>
-            </tr>
+            <thead class="bg-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Code</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+
+                </tr>
+            </tbody>
         </table>
     </div>
     <hr class="w" />
@@ -34,20 +45,20 @@
         <table class="w-75">
             <tr>
                 <th>TOTAL</th>
-                <th>RM 85.00</th>
+                <th>RM <span id="total">0</span></th>
             </tr>
             <tr>
                 <td>TAX</td>
-                <td>8.33</td>
+                <td id="tax">0</td>
             </tr>
             <tr>
                 <td>NET</td>
-                <td>76.67</td>
+                <td id="net">0</td>
             </tr>
         </table>
     </div>
     <div>
-        <button class="bg-danger"><i class="fas fa-trash"></i> SALE</button>
+        <button class="bg-danger" onclick="deleteOrder()"><i class="fas fa-trash"></i> SALE</button>
         <button class="bg-success">PAY</button>
     </div>
 </div>
@@ -55,37 +66,61 @@
 @section Scripts {
     <script type="text/javascript">
         var savedData = [];
+        var total = 0;
+        var net = 0;
+        var tax = 0;
 
-        function AddToTable(id) {
+        function AddToTable(code, price) {
             var data = {
                 name: string = "",
                 code: string = "",
-                qty: int = 0,
+                qty: int = 1,
                 price: int = 0
             }
 
-            switch (id) {
-                case 1:
-                    data.name = 'Red maxi-dress';
-                    data.code = '101';
-                    data.price = 50.00;
-                    break;
+            if (savedData.some(e => e.code == code)) {
+                index = savedData.findIndex(e => e.code == code);
+
+                savedData[index].qty++;
+                let qtyCell = document.getElementById('qty' + index);
+                qtyCell.innerText = savedData[index].qty;
+
+                savedData[index].price = savedData[index].qty * price;
+                let priceCell = document.getElementById('price' + index);
+                priceCell.innerText = savedData[index].price;
+            }
+            else {
+                switch (code) {
+                    case '101':
+                        data.name = 'Red maxi-dress';
+                        data.code = code;
+                        data.price = price;
+                        break;
+                    case '102':
+                        data.name = 'Classic blue jeans';
+                        data.code = code;
+                        data.price = price;
+                        break;
+                }
+                savedData.push(data);
+                $("#dataContainer tbody").html(generateDataRows(savedData));
             }
 
-            savedData.push(data);
-
-            $("#dataContainer tbody").append(generateDataRows(savedData));
+            checkIfEmpty();
+            calcTotal();
+            calcNet();
+            calcTax();
         }
 
-        function generateDataRows(data) {
-            console.log(data);
+        function generateDataRows(savedData) {
             var html = "";
-            for (var i = 0; i < data.length; i++) {
+
+            for (var i = 0; i < savedData.length; i++) {
                 html += "<tr id='" + i +  "'>";
-                html += "<td>" + data[i].name + "</td>";
-                html += "<td>" + data[i].code + "</td>";
-                html += "<td>" + data[i].qty + "</td>";
-                html += "<td>" + data[i].price + "</td>";
+                html += "<td>" + savedData[i].name + "</td>";
+                html += "<td>" + savedData[i].code + "</td>";
+                html += "<td id='qty" + i + "'>" + savedData[i].qty + "</td>";
+                html += "<td id='price" + i + "'>" + savedData[i].price + "</td>";
                 html += '<td><i class="fas fa-trash" onclick="RemoveFromTable(' + i + ')"></i></td>';
                 html += "</tr>";
             }
@@ -97,6 +132,55 @@
             row.parentNode.removeChild(row);
 
             savedData.splice(i, 1);
+            checkIfEmpty();
+        }
+
+        function checkIfEmpty() {
+            if (savedData.length == 0) {
+                let orderContainer = document.getElementById('orderContainer');
+                orderContainer.classList.add('d-none');
+            }
+            else {
+                if(savedData.length == 1) {
+                    let date = new Date();
+                    let orderNo = date.getMonth().toString() + date.getDate().toString() + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
+
+                    let orderNoContainer = document.getElementById('orderNo');
+                    orderNoContainer.innerText = orderNo;
+                }
+                let orderContainer = document.getElementById('orderContainer');
+                orderContainer.classList.remove('d-none');
+            }
+        }
+
+        function deleteOrder() {
+            savedData = [];
+            checkIfEmpty();
+        }
+
+        function calcTotal() {
+            total = 0;
+
+            for (var x = 0; x < savedData.length; x++) {
+                total += savedData[x].price;
+            }
+
+            let totalCell = document.getElementById('total');
+            totalCell.innerText = total;
+        }
+
+        function calcNet() {
+            net = (total / 1.10858).toFixed(2);
+
+            let netCell = document.getElementById('net');
+            netCell.innerText = net;
+        }
+
+        function calcTax() {
+            tax = (total - net).toFixed(2);
+
+            let taxCell = document.getElementById('tax');
+            taxCell.innerText = tax;
         }
     </script>
 }
