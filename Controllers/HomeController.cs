@@ -29,18 +29,18 @@ namespace sales_order_creation.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpPost]
-        public IActionResult AddItem(string name, string code, int qty, decimal price)
+        [HttpPost("SaveData")]
+        public IActionResult SaveData([FromBody] List savedData)
         {
-            Items items = new Items()
-            {
-                name = name,
-                code = code,
-                qty = qty,
-                price = price
-            };
+            //Items items = new Items()
+            //{
+            //    name = name,
+            //    code = code,
+            //    qty = qty,
+            //    price = price
+            //};
 
-            return Json(new { success = true });
+            return Ok();
         }
     }
 }

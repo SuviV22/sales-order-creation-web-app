@@ -4,11 +4,11 @@
 }
 <div>
     <table>
-        <tr>
+        <tr id="red-dress">
             <td>Red maxi-dress</td>
             <td><i class="fas fa-add" onclick="AddToTable('101', 50.00)"></i></td>
         </tr>
-        <tr>
+        <tr id="blue-jeans">
             <td>Classic blue jeans</td>
             <td><i class="fas fa-add" onclick="AddToTable('102', 35.00)"></i></td>
         </tr>
@@ -59,7 +59,7 @@
     </div>
     <div>
         <button class="bg-danger" onclick="deleteOrder()"><i class="fas fa-trash"></i> SALE</button>
-        <button class="bg-success">PAY</button>
+        <button class="bg-success" onclick="saveData()">PAY</button>
     </div>
 </div>
 
@@ -181,6 +181,32 @@
 
             let taxCell = document.getElementById('tax');
             taxCell.innerText = tax;
+        }
+
+        function saveData() {
+            //$.ajax({
+            //    url: "https://localhost:7041/Home/SaveData", // Replace with the correct URL
+            //    type: "POST", // or "POST" depending on your action's HTTP verb
+            //    data: {savedData: savedData},
+            //    success: function (data) {
+            //        // Handle the response from the controller action
+            //        console.log(data.message);
+            //    },
+            //    error: function () {
+            //        console.error("Error calling controller action");
+            //    }
+            //});
+            fetch('/Home/SaveData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(savedData)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    // Handle the response from the server
+                });
         }
     </script>
 }
