@@ -4,6 +4,9 @@
 }
 <div>
     <table>
+        <tr>
+            <td>Click on one of these items to get started with your order!</td>
+        </tr>
         <tr id="red-dress">
             <td>Red maxi-dress</td>
             <td><i class="fas fa-add" onclick="AddToTable('101', 50.00)"></i></td>
@@ -69,6 +72,7 @@
         var total = 0;
         var net = 0;
         var tax = 0;
+        var orderNo = "";
 
         function AddToTable(code, price) {
             var data = {
@@ -143,7 +147,7 @@
             else {
                 if(savedData.length == 1) {
                     let date = new Date();
-                    let orderNo = date.getMonth().toString() + date.getDate().toString() + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
+                    orderNo = date.getMonth().toString() + date.getDate().toString() + date.getHours().toString() + date.getMinutes().toString() + date.getSeconds().toString();
 
                     let orderNoContainer = document.getElementById('orderNo');
                     orderNoContainer.innerText = orderNo;
@@ -185,28 +189,40 @@
 
         function saveData() {
             //$.ajax({
-            //    url: "https://localhost:7041/Home/SaveData", // Replace with the correct URL
-            //    type: "POST", // or "POST" depending on your action's HTTP verb
-            //    data: {savedData: savedData},
-            //    success: function (data) {
-            //        // Handle the response from the controller action
-            //        console.log(data.message);
-            //    },
-            //    error: function () {
-            //        console.error("Error calling controller action");
+            //    type: "POST",
+            //    data: JSON.stringify(savedData),
+            //    url: "test/SaveData",
+            //    method: "POST",
+            //    contentType: 'application/json',
+            //    processData: false,
+            //    success: function (response) {
+            //        if (response != null && response.success) {
+            //            alert(response.message);
+            //        } else {
+            //            // DoSomethingElse()
+            //            alert(response.responseText);
+            //        }
             //    }
             //});
-            fetch('/Home/SaveData', {
+
+            savedData.forEach(e => {
+                e.orderId = orderNo;
+            });
+
+            fetch('test/SaveData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(savedData)
             })
-                .then(response => response.json())
-                .then(result => {
-                    // Handle the response from the server
-                });
+            .then(response => response.json())
+            .then(result => {
+                // Handle the response from the server
+                alert('Your order was saved!');
+                deleteOrder();
+            });
+                
         }
     </script>
 }

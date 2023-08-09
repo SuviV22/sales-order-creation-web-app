@@ -1,16 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using sales_order_creation.Models;
+using System.IO.Pipelines;
+using System.Xml.Linq;
 
 namespace sales_order_creation.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _applicationDbContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext applicationDbContext)
         {
             _logger = logger;
+            _applicationDbContext = applicationDbContext;
         }
 
         public IActionResult Index()
@@ -29,18 +33,24 @@ namespace sales_order_creation.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpPost("SaveData")]
-        public IActionResult SaveData([FromBody] List savedData)
+        [HttpPost("/test/SaveData")]
+        public IActionResult SaveData([FromBody] List<Items> savedData)
         {
-            //Items items = new Items()
-            //{
-            //    name = name,
-            //    code = code,
-            //    qty = qty,
-            //    price = price
-            //};
+            foreach (var item in savedData)
+            {
+                Items order = new Items()
+                {
+                    orderId = item.orderId,
+                    name = item.name,
+                    code = item.code,
+                    qty = item.qty,
+                    price = item.price
+                };
+                _applicationDbContext.Add(order);
+            }
+            _applicationDbContext.SaveChanges();
 
-            return Ok();
+            return Json(new { message = "Data saved successfully" });
         }
     }
 }
